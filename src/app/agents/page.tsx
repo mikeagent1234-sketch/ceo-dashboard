@@ -3,15 +3,16 @@ export const dynamic = 'force-dynamic'
 
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Agent, Task } from '@/types'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Users, ExternalLink } from 'lucide-react'
 
 export default function AgentsPage() {
+  const router = useRouter()
   const [agents, setAgents] = useState<Agent[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedAgent, setSelectedAgent] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,7 +52,7 @@ export default function AgentsPage() {
           const completedTasks = agentTasks.filter(t => t.status === 'complete')
 
           return (
-            <div key={agent.id} className="bg-gray-900/80 border border-gray-800 rounded-xl p-6 animate-fade-in">
+            <div key={agent.id} className="bg-gray-900/80 border border-gray-800 rounded-xl p-6 animate-fade-in hover:border-gray-600 transition-all">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-4">
                   <div

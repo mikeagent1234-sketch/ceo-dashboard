@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Agent, Task, Notification } from '@/types'
 import AgentCard from '@/components/AgentCard'
@@ -10,13 +11,13 @@ import {
   CheckCircle,
   Clock,
   AlertTriangle,
-  TrendingUp,
   Users,
   ListTodo,
   Loader2
 } from 'lucide-react'
 
 export default function Dashboard() {
+  const router = useRouter()
   const [agents, setAgents] = useState<Agent[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -131,9 +132,17 @@ export default function Dashboard() {
               key={agent.id}
               agent={agent}
               taskCount={taskCounts[agent.id] || 0}
+              onClick={() => router.push(`/tasks?agent=${agent.id}`)}
             />
           ))}
         </div>
+        {agents.length === 0 && !loading && (
+          <div className="text-center py-16 text-gray-600">
+            <Users className="w-12 h-12 mx-auto mb-4 opacity-30" />
+            <p className="text-lg">No agents yet</p>
+            <p className="text-sm mt-1">Add agents to your team to get started</p>
+          </div>
+        )}
       </div>
 
       {/* Recent Tasks */}

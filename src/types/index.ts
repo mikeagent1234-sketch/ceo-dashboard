@@ -14,12 +14,34 @@ export interface Task {
   agent_id: string | null
   status: 'todo' | 'in_progress' | 'review' | 'complete'
   priority: 'high' | 'medium' | 'low'
+  progress: number
   deadline: string | null
   project_id: string | null
   created_at: string
   updated_at: string
   agent?: Agent
   project?: Project
+}
+
+export interface Memory {
+  id: string
+  date: string
+  title: string
+  summary: string
+  details: string | null
+  type: 'daily' | 'longterm'
+  created_at: string
+}
+
+export interface LiveActivity {
+  id: string
+  agent_id: string
+  task_id: string | null
+  status: 'idle' | 'working' | 'review' | 'blocked'
+  started_at: string | null
+  updated_at: string
+  agent?: Agent
+  task?: Task
 }
 
 export interface Project {
