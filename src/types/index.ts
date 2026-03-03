@@ -78,6 +78,17 @@ export interface DailyReport {
   created_at: string
 }
 
+export interface WorkStatusEvent {
+  id: string
+  agent_id: string
+  task_id: string | null
+  event_type: 'start' | 'progress' | 'log' | 'error' | 'complete' | 'idle'
+  message: string
+  progress: number | null
+  metadata: Record<string, any> | null
+  created_at: string
+}
+
 export interface ChatMessage {
   id: string
   content: string

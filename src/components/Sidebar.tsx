@@ -19,6 +19,8 @@ import {
   Brain,
   CalendarDays,
   Shield,
+  MessageCircle,
+  Settings,
 } from 'lucide-react'
 
 export default function Sidebar() {
@@ -53,8 +55,10 @@ export default function Sidebar() {
     { href: '/reminders', label: 'Reminders', icon: Clock, badge: null },
     { href: '/memory', label: 'Memory', icon: Brain, badge: null },
     { href: '/reports', label: 'Reports', icon: FileText, badge: null },
+    { href: '/chat', label: 'Chat', icon: MessageCircle, badge: null },
     { href: '/delegation', label: 'Delegation', icon: Shield, badge: null },
     { href: '/notifications', label: 'Notifications', icon: Bell, badge: null },
+    { href: '/notifications/preferences', label: 'Alert Settings', icon: Settings, badge: null },
   ]
 
   const sidebarContent = (

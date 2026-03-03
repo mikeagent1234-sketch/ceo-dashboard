@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Agent, Task, Notification } from '@/types'
 import AgentCard from '@/components/AgentCard'
+import VoiceTaskCreator from '@/components/VoiceTaskCreator'
+import LiveWorkStatus from '@/components/LiveWorkStatus'
 import {
   CheckCircle,
   Clock,
@@ -192,6 +194,12 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* Live Work Status Widget */}
+      <LiveWorkStatus />
+
+      {/* Voice Task Creator (floating) */}
+      <VoiceTaskCreator />
 
       {/* Notifications */}
       {notifications.length > 0 && (

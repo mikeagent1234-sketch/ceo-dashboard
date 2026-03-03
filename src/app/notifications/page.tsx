@@ -6,7 +6,8 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Notification } from '@/types'
 import { format } from 'date-fns'
-import { Loader2, Bell, CheckCheck, Trash2 } from 'lucide-react'
+import { Loader2, Bell, CheckCheck, Trash2, Settings } from 'lucide-react'
+import Link from 'next/link'
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -44,6 +45,10 @@ export default function NotificationsPage() {
           <p className="text-gray-500">{unreadCount} unread</p>
         </div>
         <div className="flex gap-2">
+          <Link href="/notifications/preferences"
+            className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-all text-sm">
+            <Settings className="w-4 h-4" /> Preferences
+          </Link>
           <button onClick={markAllRead}
             className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-all text-sm">
             <CheckCheck className="w-4 h-4" /> Mark all read

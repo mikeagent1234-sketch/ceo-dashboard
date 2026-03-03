@@ -106,6 +106,21 @@ CREATE TABLE IF NOT EXISTS notification_preferences (
   UNIQUE(channel)
 );
 
+-- Feature 2 & 3: Work status events for live tracking
+CREATE TABLE IF NOT EXISTS work_status_events (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  agent_id uuid REFERENCES agents(id) ON DELETE CASCADE,
+  task_id uuid REFERENCES tasks(id) ON DELETE SET NULL,
+  event_type text NOT NULL DEFAULT 'log',
+  message text NOT NULL,
+  progress integer,
+  metadata jsonb,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- Add progress column to tasks if missing
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS progress integer DEFAULT 0;
+
 -- Enable RLS but allow all for now (single user dashboard)
 ALTER TABLE agents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
@@ -132,3 +147,9 @@ CREATE POLICY "Allow all on messages" ON messages FOR ALL USING (true) WITH CHEC
 CREATE POLICY "Allow all on delegation_rules" ON delegation_rules FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all on decision_log" ON decision_log FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all on notification_preferences" ON notification_preferences FOR ALL USING (true) WITH CHECK (true);
+
+ALTER TABLE work_status_events ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow all on work_status_events" ON work_status_events FOR ALL USING (true) WITH CHECK (true);
+
+-- Enable realtime for work_status_events
+ALTER PUBLICATION supabase_realtime ADD TABLE work_status_events;
