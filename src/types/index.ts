@@ -77,3 +77,41 @@ export interface DailyReport {
   summary: string
   created_at: string
 }
+
+export interface ChatMessage {
+  id: string
+  content: string
+  sender: string
+  sender_type: 'user' | 'agent' | 'system'
+  command: string | null
+  created_at: string
+}
+
+export interface DelegationRule {
+  id: string
+  name: string
+  category: 'budget' | 'design' | 'tech' | 'custom'
+  threshold: number | null
+  auto_proceed: boolean
+  escalation_condition: string | null
+  created_at: string
+}
+
+export interface DecisionLog {
+  id: string
+  rule_id: string | null
+  decision: string
+  context: string | null
+  outcome: 'auto_approved' | 'escalated' | 'manual'
+  created_at: string
+  rule?: DelegationRule
+}
+
+export interface NotificationPreference {
+  id: string
+  channel: 'telegram' | 'email' | 'sms' | 'push'
+  enabled: boolean
+  config: Record<string, string> | null
+  events: string[]
+  created_at: string
+}
