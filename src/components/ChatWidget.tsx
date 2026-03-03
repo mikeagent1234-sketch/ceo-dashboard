@@ -122,14 +122,12 @@ export default function ChatWidget() {
 
   return (
     <div
-      className="fixed bottom-0 right-0 w-full sm:w-96 h-full sm:h-[600px] sm:bottom-6 sm:right-6 z-50 flex flex-col animate-fade-in-scale"
+      className="fixed bottom-0 right-0 w-full sm:w-96 h-full sm:h-[600px] sm:bottom-6 sm:right-6 sm:rounded-xl z-50 flex flex-col animate-fade-in-scale overflow-hidden"
       style={{
         background: 'rgba(8, 12, 30, 0.98)',
         border: '1px solid rgba(51, 65, 85, 0.5)',
-        borderRadius: '0 0 0 0',
         backdropFilter: 'blur(20px)',
       }}
-      // sm border radius
     >
       {/* Header */}
       <div
