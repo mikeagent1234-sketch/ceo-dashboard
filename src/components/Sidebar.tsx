@@ -17,6 +17,7 @@ import {
   X,
   Activity,
   Brain,
+  CalendarDays,
 } from 'lucide-react'
 
 export default function Sidebar() {
@@ -47,6 +48,7 @@ export default function Sidebar() {
     { href: '/tasks', label: 'Tasks', icon: CheckSquare, badge: taskCount > 0 ? taskCount : null, reviewBadge: reviewCount > 0 ? reviewCount : null },
     { href: '/activity', label: 'Live Activity', icon: Activity, badge: null },
     { href: '/projects', label: 'Projects', icon: FolderKanban, badge: null },
+    { href: '/calendar', label: 'Calendar', icon: CalendarDays, badge: null },
     { href: '/reminders', label: 'Reminders', icon: Clock, badge: null },
     { href: '/memory', label: 'Memory', icon: Brain, badge: null },
     { href: '/reports', label: 'Reports', icon: FileText, badge: null },
