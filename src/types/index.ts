@@ -49,6 +49,7 @@ export interface Project {
   name: string
   description: string | null
   status: 'active' | 'paused' | 'complete'
+  progress: number | null
   created_at: string
 }
 

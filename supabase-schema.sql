@@ -16,8 +16,12 @@ CREATE TABLE IF NOT EXISTS projects (
   name text NOT NULL,
   description text,
   status text NOT NULL DEFAULT 'active',
+  progress integer DEFAULT NULL,
   created_at timestamptz NOT NULL DEFAULT now()
 );
+
+-- Add progress column if upgrading from v1 (run if column doesn't exist)
+-- ALTER TABLE projects ADD COLUMN IF NOT EXISTS progress integer DEFAULT NULL;
 
 -- Tasks table
 CREATE TABLE IF NOT EXISTS tasks (

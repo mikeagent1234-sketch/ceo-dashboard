@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Memory } from '@/types'
-import { Brain, Calendar, Clock, Plus, Trash2, ChevronDown, ChevronRight } from 'lucide-react'
+import { Brain, Calendar, Clock, Plus, Trash2, ChevronDown, ChevronRight, RefreshCw } from 'lucide-react'
 
 export default function MemoryPage() {
   const [memories, setMemories] = useState<Memory[]>([])
@@ -12,6 +12,8 @@ export default function MemoryPage() {
   const [showCreate, setShowCreate] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [form, setForm] = useState({ title: '', summary: '', details: '', date: new Date().toISOString().split('T')[0], type: 'daily' as 'daily' | 'longterm' })
+  const [syncing, setSyncing] = useState(false)
+  const [syncMsg, setSyncMsg] = useState<string | null>(null)
 
   const fetchData = useCallback(async () => {
     const { data } = await supabase
@@ -42,6 +44,25 @@ export default function MemoryPage() {
     fetchData()
   }
 
+  const handleSync = async () => {
+    setSyncing(true)
+    setSyncMsg(null)
+    try {
+      const res = await fetch('/api/sync-memories', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) {
+        setSyncMsg(`Error: ${data.error || 'Sync failed'}`)
+      } else {
+        setSyncMsg(`Synced ${data.synced} entries (${data.inserted} new, ${data.updated} updated)`)
+        fetchData()
+      }
+    } catch {
+      setSyncMsg('Network error — sync failed')
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   // Filter by tab
   const sevenDaysAgo = new Date()
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
@@ -69,12 +90,29 @@ export default function MemoryPage() {
           </h1>
           <p className="text-gray-500 mt-1">Conversation history, decisions, and thought process</p>
         </div>
-        <button
-          onClick={() => setShowCreate(!showCreate)}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium"
-        >
-          <Plus className="w-4 h-4" /> Add Memory
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col items-end gap-1">
+            <button
+              onClick={handleSync}
+              disabled={syncing}
+              className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 text-gray-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all border border-gray-700"
+            >
+              <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+              {syncing ? 'Syncing...' : 'Sync Memories'}
+            </button>
+            {syncMsg && (
+              <span className={`text-xs ${syncMsg.startsWith('Error') ? 'text-red-400' : 'text-green-400'}`}>
+                {syncMsg}
+              </span>
+            )}
+          </div>
+          <button
+            onClick={() => setShowCreate(!showCreate)}
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium"
+          >
+            <Plus className="w-4 h-4" /> Add Memory
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
