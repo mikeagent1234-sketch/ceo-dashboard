@@ -18,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.className} bg-[#0a0a0f] text-gray-200`}>
+      <body className={`${inter.className} text-slate-200`} style={{ background: '#0a0f1e' }}>
         <Sidebar />
         <main className="md:ml-64 min-h-screen p-4 md:p-8 pt-16 md:pt-8">
           {children}

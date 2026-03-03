@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import {
@@ -22,17 +22,19 @@ import {
 export default function Sidebar() {
   const pathname = usePathname()
   const [taskCount, setTaskCount] = useState(0)
+  const [reviewCount, setReviewCount] = useState(0)
   const [mobileOpen, setMobileOpen] = useState(false)
 
   useEffect(() => {
-    const fetchCount = async () => {
-      const { count } = await supabase
-        .from('tasks')
-        .select('*', { count: 'exact', head: true })
-        .neq('status', 'complete')
-      setTaskCount(count || 0)
+    const fetchCounts = async () => {
+      const [activeRes, reviewRes] = await Promise.all([
+        supabase.from('tasks').select('*', { count: 'exact', head: true }).neq('status', 'approved').neq('status', 'backlog'),
+        supabase.from('tasks').select('*', { count: 'exact', head: true }).eq('status', 'review'),
+      ])
+      setTaskCount(activeRes.count || 0)
+      setReviewCount(reviewRes.count || 0)
     }
-    fetchCount()
+    fetchCounts()
   }, [pathname])
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export default function Sidebar() {
   const navItems = [
     { href: '/', label: 'Dashboard', icon: LayoutDashboard, badge: null },
     { href: '/agents', label: 'Agents', icon: Users, badge: null },
-    { href: '/tasks', label: 'Tasks', icon: CheckSquare, badge: taskCount > 0 ? taskCount : null },
+    { href: '/tasks', label: 'Tasks', icon: CheckSquare, badge: taskCount > 0 ? taskCount : null, reviewBadge: reviewCount > 0 ? reviewCount : null },
     { href: '/activity', label: 'Live Activity', icon: Activity, badge: null },
     { href: '/projects', label: 'Projects', icon: FolderKanban, badge: null },
     { href: '/reminders', label: 'Reminders', icon: Clock, badge: null },
@@ -52,22 +54,29 @@ export default function Sidebar() {
   ]
 
   const sidebarContent = (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-gray-950 border-r border-gray-800 flex flex-col z-50 transition-transform duration-200 ease-in-out md:translate-x-0"
-      style={{ transform: mobileOpen ? 'translateX(0)' : undefined }}
+    <aside className="fixed left-0 top-0 h-screen w-64 flex flex-col z-50"
+      style={{
+        background: 'rgba(8, 12, 30, 0.97)',
+        borderRight: '1px solid rgba(51, 65, 85, 0.4)',
+        backdropFilter: 'blur(20px)',
+      }}
     >
-      <div className="p-6 border-b border-gray-800">
+      {/* Logo */}
+      <div className="p-5 border-b border-slate-800/60">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-            <Zap className="w-5 h-5 text-white" />
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center"
+            style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)' }}>
+            <Zap className="w-4 h-4 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-white">CEO Dashboard</h1>
-            <p className="text-xs text-gray-500">Agent Command Center</p>
+            <h1 className="text-sm font-bold text-white tracking-wide">CEO Dashboard</h1>
+            <p className="text-xs text-slate-500">Agent Command Center</p>
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+      {/* Nav */}
+      <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href
           const Icon = item.icon
@@ -75,28 +84,54 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all relative group ${
                 isActive
-                  ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                  ? 'text-white'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
               }`}
+              style={isActive ? {
+                background: 'rgba(37, 99, 235, 0.15)',
+                border: '1px solid rgba(59, 130, 246, 0.25)',
+              } : { border: '1px solid transparent' }}
             >
-              <Icon className="w-5 h-5 flex-shrink-0" />
-              <span className="text-sm font-medium flex-1">{item.label}</span>
-              {item.badge !== null && (
-                <span className="px-2 py-0.5 text-xs rounded-full bg-blue-600/30 text-blue-400 font-medium">
-                  {item.badge}
-                </span>
+              {/* Active indicator bar */}
+              {isActive && (
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-blue-500 rounded-r-full" />
               )}
+              <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-blue-400' : ''}`} />
+              <span className="text-sm font-medium flex-1">{item.label}</span>
+              <div className="flex items-center gap-1">
+                {/* Review badge (yellow) */}
+                {'reviewBadge' in item && item.reviewBadge && (
+                  <span className="px-1.5 py-0.5 text-xs rounded-full font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 animate-pulse-dot">
+                    {item.reviewBadge}
+                  </span>
+                )}
+                {/* Task count badge */}
+                {item.badge !== null && (
+                  <span className="px-1.5 py-0.5 text-xs rounded-full bg-blue-600/25 text-blue-400 font-medium border border-blue-500/20">
+                    {item.badge}
+                  </span>
+                )}
+              </div>
             </Link>
           )
         })}
       </nav>
 
-      <div className="p-4 border-t border-gray-800">
-        <div className="px-4 py-3 rounded-lg bg-gray-900/50">
-          <p className="text-xs text-gray-500">Powered by</p>
-          <p className="text-sm text-gray-300 font-medium">Mike • CEO Agent</p>
+      {/* Footer */}
+      <div className="p-3 border-t border-slate-800/60">
+        <div className="px-3 py-2.5 rounded-lg bg-slate-900/50 border border-slate-800/50">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-xs font-bold text-white">
+              M
+            </div>
+            <div>
+              <p className="text-xs font-medium text-slate-200">Mike • CEO</p>
+              <p className="text-xs text-slate-500">Command active</p>
+            </div>
+            <span className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse-dot" />
+          </div>
         </div>
       </div>
     </aside>
@@ -104,24 +139,26 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile hamburger button */}
+      {/* Mobile hamburger */}
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="fixed top-4 left-4 z-[60] md:hidden w-9 h-9 bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center text-gray-300 hover:text-white transition-colors"
+        className="fixed top-4 left-4 z-[60] md:hidden w-9 h-9 rounded-lg flex items-center justify-center text-slate-300 hover:text-white transition-colors"
+        style={{ background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(51, 65, 85, 0.5)' }}
         aria-label="Toggle menu"
       >
-        {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
       </button>
 
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
           className="fixed inset-0 bg-black/60 z-40 md:hidden"
+          style={{ backdropFilter: 'blur(4px)' }}
           onClick={() => setMobileOpen(false)}
         />
       )}
 
-      {/* Sidebar - hidden on mobile unless open */}
+      {/* Sidebar */}
       <div className={`md:block ${mobileOpen ? 'block' : 'hidden'}`}>
         {sidebarContent}
       </div>

@@ -12,7 +12,7 @@ export interface Task {
   title: string
   description: string | null
   agent_id: string | null
-  status: 'todo' | 'in_progress' | 'review' | 'complete'
+  status: 'backlog' | 'todo' | 'in_progress' | 'review' | 'approved' | 'needs_changes'
   priority: 'high' | 'medium' | 'low'
   progress: number
   deadline: string | null
